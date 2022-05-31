@@ -9,23 +9,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.opgmap.reports.models.dao.Report;
-import ru.opgmap.reports.rest.ApiPath;
 import ru.opgmap.reports.services.interfaces.ReportsService;
 import ru.opgmap.reports.utils.PageableUtils;
 
 import java.security.Principal;
 import java.util.UUID;
 
+import static ru.opgmap.reports.rest.ApiPath.*;
+
 @RestController
 @CrossOrigin("*")
 @AllArgsConstructor
 @SecurityRequirement(name = "security_auth")
 @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+@RequestMapping(REPORTS)
 public class ReportsAdminController {
 
     private final ReportsService reportsService;
 
-    @GetMapping(ApiPath.USER_ID_PATH)
+    @GetMapping(USER_ID_PATH)
     Page<Report> getAllReportsByUser(@RequestParam(defaultValue = "0") int cursor,
                                      @RequestParam(defaultValue = "10") int size,
                                      @RequestParam(defaultValue = "id") String sortBy,
@@ -38,7 +40,7 @@ public class ReportsAdminController {
         return reportsService.getAllReportsByUserId(userId, pageable);
     }
 
-    @GetMapping(ApiPath.ROOT_PATH)
+    @GetMapping(ROOT_PATH)
     Page<Report> getAllReports(@RequestParam(defaultValue = "0") int cursor,
                                @RequestParam(defaultValue = "10") int size,
                                @RequestParam(defaultValue = "id") String sortBy,
@@ -50,18 +52,18 @@ public class ReportsAdminController {
         return reportsService.getAllReports(pageable);
     }
 
-    @GetMapping(ApiPath.REPORT_ID)
+    @GetMapping(REPORT_ID)
     Report getReport(@PathVariable UUID reportId) {
         return reportsService.findById(reportId);
     }
 
-    @DeleteMapping(ApiPath.REPORT_ID)
+    @DeleteMapping(REPORT_ID)
     ResponseEntity<HttpStatus> deleteReport(@PathVariable UUID reportId) {
         reportsService.deleteReport(reportId);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PostMapping(ApiPath.RESPONSE_TO_REPORT_PATH)
+    @PostMapping(RESPONSE_TO_REPORT_PATH)
     Report responseToReport(@PathVariable UUID reportId, Principal principal) {
         return new Report();
     }
