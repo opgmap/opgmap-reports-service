@@ -1,0 +1,79 @@
+version: "3"
+services:
+  #POSTGRES-----------------------------------------------#
+  postgres:
+    image: postgres
+    container_name: db_postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DATABASES: opgmap_reports
+    ports:
+      - 5432:5432
+    networks:
+    - opg_net
+
+
+  #ZOOKEEPER-----------------------------------------------#
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.8
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - opg_net
+    #KAFKA-----------------------------------------------#
+  kafka:
+    image: docker.io/bitnami/kafka:3.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=LISTENER_APP://kafka:9092,LISTENER_UI://kafka:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_APP://localhost:9092,LISTENER_UI://kafka:9093
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=LISTENER_APP:PLAINTEXT,LISTENER_UI:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=LISTENER_UI
+    depends_on:
+      - zookeeper
+    networks:
+      - opg_net
+  #KAFKA-UI-----------------------------------------------#
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9093
+    networks:
+      - opg_net
+  #KEYCLOCK-----------------------------------------------#
+  keycloak:
+    depends_on:
+      - postgres
+    image: quay.io/keycloak/keycloak:18.0.0
+    command: start-dev
+    restart: unless-stopped
+    ports:
+      - "8888:8080"
+    environment:
+      KEYCLOAK_ADMIN: root
+      KEYCLOAK_ADMIN_PASSWORD: root
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres/postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: root
+    networks:
+      - opg_net
+
+networks:
+  opg_net:
+
+

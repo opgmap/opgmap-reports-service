@@ -1,0 +1,63 @@
+server:
+  port: 80
+
+spring:
+  application:
+    name: api-reports
+  flyway:
+    default-schema: public
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:opgmap_reports}
+    username: ${POSTGRES_USER:root}
+    password: ${POSTGRES_PASSWORD:root}
+  kafka:
+    bootstrap-servers: kafka:9092
+    request-timeout-ms: 1000
+    reply-timeout-ms: 5000
+    producer:
+      batch-delay: 5000
+      batch-size: 32000
+    consumer:
+      group-id: reports_consumer
+    topic:
+      addReport: ${ADD_REPORT_TOPIC:ADD_REPORT_TOPIC}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8888/realms/opgmap/protocol/openid-connect/certs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+springdoc:
+  swagger-ui:
+    oauth:
+      clientId: swagger
+      clientSecret: ACAmAIAqVPQazY1p1D1DjYM1Fhx0rchy
+      use-pkce-with-authorization-code-grant: true
+  oAuthFlow:
+    authorizationUrl: http://localhost:8888/realms/opgmap/protocol/openid-connect/auth
+    tokenUrl: http://localhost:8888/realms/opgmap/protocol/openid-connect/token
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+
+eureka:
+  instance:
+    hostname: ${EUREKA_CLIENT_HOST:api-reports}
+  client:
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URL}/eureka/
+    fetch-registry: true
