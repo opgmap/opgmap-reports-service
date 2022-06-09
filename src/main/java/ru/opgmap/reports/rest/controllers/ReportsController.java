@@ -15,7 +15,8 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.util.UUID;
 
-import static ru.opgmap.reports.rest.ApiPath.*;
+import static ru.opgmap.reports.rest.ApiPath.REPORTS;
+import static ru.opgmap.reports.rest.ApiPath.ROOT_PATH;
 
 @RestController
 @RequestMapping(REPORTS)
