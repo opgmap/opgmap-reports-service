@@ -10,7 +10,6 @@ import ru.opgmap.reports.models.enums.SubjectType;
 import ru.opgmap.reports.utils.TimeUtils;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,7 +18,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "reports")
 @NoArgsConstructor
-public class Report implements Serializable {
+public class Report {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

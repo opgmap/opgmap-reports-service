@@ -2,16 +2,20 @@ package ru.opgmap.reports.rest.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.opgmap.reports.models.dao.Report;
+import ru.opgmap.reports.models.enums.ReportHandleStatus;
 import ru.opgmap.reports.services.interfaces.ReportsService;
+import ru.opgmap.reports.services.interfaces.ReportsStatusService;
 import ru.opgmap.reports.utils.PageableUtils;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.UUID;
 
@@ -26,9 +30,11 @@ import static ru.opgmap.reports.rest.ApiPath.*;
 public class ReportsAdminController {
 
     private final ReportsService reportsService;
+    private final ReportsStatusService reportsStatusService;
+    private final PagedResourcesAssembler<Report> pagedResourcesAssembler;
 
     @GetMapping(USER_ID_PATH)
-    Page<Report> getAllReportsByUser(@RequestParam(defaultValue = "0") int cursor,
+    PagedModel<?> getAllReportsByUser(@RequestParam(defaultValue = "0") int cursor,
                                      @RequestParam(defaultValue = "10") int size,
                                      @RequestParam(defaultValue = "id") String sortBy,
                                      @RequestParam(defaultValue = "0") int asc,
@@ -37,19 +43,20 @@ public class ReportsAdminController {
         Pageable pageable = PageableUtils
                 .getPageable(cursor, size, sortBy, asc);
 
-        return reportsService.getAllReportsByUserId(userId, pageable);
+        return pagedResourcesAssembler
+                .toModel(reportsService.getAllReportsByUserId(userId, pageable));
     }
 
     @GetMapping(ROOT_PATH)
-    Page<Report> getAllReports(@RequestParam(defaultValue = "0") int cursor,
-                               @RequestParam(defaultValue = "10") int size,
-                               @RequestParam(defaultValue = "id") String sortBy,
-                               @RequestParam(defaultValue = "0") int asc) {
+    PagedModel<?> getAllReports(@RequestParam(defaultValue = "0") int cursor,
+                             @RequestParam(defaultValue = "10") int size,
+                             @RequestParam(defaultValue = "id") String sortBy,
+                             @RequestParam(defaultValue = "0") int asc) {
 
         Pageable pageable = PageableUtils
                 .getPageable(cursor, size, sortBy, asc);
 
-        return reportsService.getAllReports(pageable);
+        return pagedResourcesAssembler.toModel(reportsService.getAllReports(pageable));
     }
 
     @GetMapping(REPORT_ID)
@@ -64,7 +71,11 @@ public class ReportsAdminController {
     }
 
     @PostMapping(RESPONSE_TO_REPORT_PATH)
-    Report responseToReport(@PathVariable UUID reportId, Principal principal) {
-        return new Report();
+    Report responseToReport(@PathVariable UUID reportId,
+                            @RequestBody @Valid ReportHandleStatus status,
+                            Principal principal) {
+
+        return reportsStatusService.changeReportStatus(reportId, status,
+                UUID.fromString(principal.getName()));
     }
 }

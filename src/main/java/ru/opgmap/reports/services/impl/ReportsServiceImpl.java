@@ -1,5 +1,6 @@
 package ru.opgmap.reports.services.impl;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +14,10 @@ import javax.persistence.EntityNotFoundException;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class ReportsServiceImpl implements ReportsService {
 
-    @Autowired
+
     private ReportsRepository reportsRepository;
 
     @Override
@@ -42,7 +44,7 @@ public class ReportsServiceImpl implements ReportsService {
     @Override
     public Report findById(UUID reportId) {
         return reportsRepository.findById(reportId).orElseThrow(() -> {
-            throw new EntityNotFoundException("Report with id: "+ reportId + " not found");
+            throw new EntityNotFoundException("Report with id: " + reportId + " not found");
         });
     }
 
