@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -23,7 +23,8 @@ spring:
       group-id: reports_consumer
     topic:
       addReport: ${ADD_REPORT_TOPIC}
-
+  zipkin:
+    base-url: ${ZIPKIN_URL}
   security:
     oauth2:
       resourceserver:
@@ -39,8 +40,8 @@ management:
 springdoc:
   swagger-ui:
     oauth:
-      clientId: swagger
-      clientSecret: fsTR31mMbOEOl9FSNw6oIZFGyVz8fYhY
+      clientId: ${SPRING_DOC_OAUTH2_CLIENT_ID}
+      clientSecret: ${SPRING_DOC_OAUTH2_CLIENT_SECRET}
       use-pkce-with-authorization-code-grant: true
   oAuthFlow:
     authorizationUrl: ${SPRINGDOC_KEYCLOAK_REALM_URL}/protocol/openid-connect/auth
